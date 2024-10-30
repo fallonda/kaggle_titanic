@@ -1,13 +1,13 @@
 from load_data import import_data
 from tidy_features import engineer_features, create_dummies
 import os
-from sklearn.model_selection import {
+from sklearn.model_selection import (
     train_test_split,
     cross_val_score,
     GridSearchCV
-}
+)
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
@@ -43,23 +43,28 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 rf_param_grid = [
     {
-        n_estimators: [10, 20, 50, 100],
-        max_depth = [2, 5, 10, 100, None],
-        min_samples_split = [2, 3, 4],
-        min_samples_leaf = [1, 2, 3]
+        "rf__n_estimators": [10, 20, 50, 100],
+        "rf__max_depth": [2, 5, 10, 100, None],
+        "rf__min_samples_split": [2, 3, 4],
+        "rf__min_samples_leaf": [1, 2, 3]
     }
 ]
-pl = make_pipeline(
-    StandardScaler(),
-    RandomForestClassifier(
-        njobs=-1,
-        random_state=42
-    )
+pl = Pipeline(
+    [
+        ("scaling", StandardScaler()),
+        ("rf", RandomForestClassifier(
+            random_state=42,
+            verbose=1
+        ))
+    ]
 )
 
-pl.fit(X_train, y_train)
-
-pred = pl.predict(X_test)
-
-acc = accuracy_score(pred, y_test)
+grid = GridSearchCV(
+    pl,
+    cv=5,
+    param_grid=rf_param_grid,
+    n_jobs=-1
+)
+grid.fit(X_train, y_train)
+acc = accuracy_score(grid.predict(X_test), y_test)
 print(acc)
