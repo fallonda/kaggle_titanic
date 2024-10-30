@@ -1,10 +1,11 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+from load_data import import_data
+from tidy_features import engineer_features
 import os
 
 home = os.environ["PWD"]
+print(home)
 
-import_train = pd.read_csv(
+raw_train_df = import_data(
     os.path.join(
         home,
         "data",
@@ -12,26 +13,18 @@ import_train = pd.read_csv(
     )
 )
 
-# Add features
-# name length
-add_name_length = import_train.assign(
-    name_length=[len(x) for x in import_train.Name]
-)
+print(raw_train_df.shape)
 
+# features
+train_w_features = engineer_features(raw_train_df)
+print(train_w_features.shape)
+print(train_w_features.columns)
+print(train_w_features.nunique())
+print(train_w_features.info())
 
-# Drop unnecessary columns
-drop_train = add_name_length.drop(
-    labels=[
-        "PassengerId",
-        "Name"
-    ],
-    axis=1
-)
+# with_dummies = pd.get_dummies(
+#     import_train,
+#     columns=[
 
-
-with_dummies = pd.get_dummies(
-    import_train,
-    columns=[
-
-    ]
-)
+#     ]
+# )
