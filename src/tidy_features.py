@@ -1,3 +1,5 @@
+import pandas as pd
+
 
 def engineer_features(df):
     func_df = df.assign(
@@ -9,12 +11,25 @@ def engineer_features(df):
     func_df = func_df.drop(
         columns=[
             "PassengerId",
-            "Name"
+            "Name",
+            "Cabin",
+            "Ticket"
         ],
     )
     func_df.Age = func_df.Age.fillna(
         func_df.Age.mean()
     )
-    func_df.Cabin = func_df.Cabin.fillna("unknown")
     func_df.Embarked = func_df.Embarked.fillna("unknown")
     return (func_df)
+
+
+def create_dummies(df):
+    func_df = pd.get_dummies(
+        df,
+        columns=[
+            "Embarked",
+            "Sex"
+        ],
+        dtype=int
+    )
+    return func_df
