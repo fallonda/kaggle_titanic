@@ -30,6 +30,7 @@ def create_dummies(df):
             "Embarked",
             "Sex"
         ],
+        drop_first=True,
         dtype=int
     )
     return func_df
