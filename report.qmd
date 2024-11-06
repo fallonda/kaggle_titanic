@@ -1,7 +1,0 @@
-# Quarto report
-
-Hello
-
-```{r}
-print("hello")
-```
