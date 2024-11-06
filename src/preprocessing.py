@@ -34,3 +34,13 @@ def create_dummies(df):
         dtype=int
     )
     return func_df
+
+
+def full_preprocessing(df: pd.DataFrame) -> pd.DataFrame:
+    """wrapper around all preprocessing steps"""
+    func_df = (
+        df
+        .pipe(engineer_features)
+        .pipe(create_dummies)
+    )
+    return func_df
