@@ -1,3 +1,4 @@
+import pandas as pd
 from src.load_data import import_data
 from src.preprocessing import full_preprocessing
 import os
@@ -9,7 +10,7 @@ from sklearn.model_selection import (
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 import matplotlib.pyplot as plt
 
 home = os.environ["PWD"]
@@ -33,9 +34,12 @@ raw_external_test = import_data(
 
 # Preprocessing
 preprocess_train = full_preprocessing(raw_train_df)
+preprocess_train_ids = preprocess_train["PassengerId"]
+preprocess_train = preprocess_train.drop(columns = "PassengerId")
 preprocess_ext_test = full_preprocessing(
     raw_external_test).assign(Embarked_unknown=0)
-
+preprocess_ext_test_ids = preprocess_ext_test["PassengerId"]
+preprocess_ext_test = preprocess_ext_test.drop(columns = "PassengerId")
 # Split into train and test
 X = preprocess_train.drop(
     columns=["Survived"]
@@ -50,6 +54,9 @@ print(
         )
     }"
 )
+# Reorder columns to match training input
+preprocess_ext_test = preprocess_ext_test[X.columns]
+all(X.columns == preprocess_ext_test.columns)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
@@ -82,8 +89,13 @@ grid = GridSearchCV(
     param_grid=rf_param_grid,
     n_jobs=-1,
     verbose=2,
-    scoring="accuracy"
+    scoring="balanced_accuracy"
 )
 grid.fit(X_train, y_train)
-acc = accuracy_score(grid.predict(X_test), y_test)
+acc = balanced_accuracy_score(grid.predict(X_test), y_test)
 print(acc)
+
+# Get predictions on external test set
+external_pred = grid.predict(preprocess_ext_test)
+
+ext_results = pd.DataFrame(preprocess_ext_test_ids).assign(Survived=external_pred)

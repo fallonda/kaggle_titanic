@@ -10,7 +10,6 @@ def engineer_features(df):
     )
     func_df = func_df.drop(
         columns=[
-            "PassengerId",
             "Name",
             "Cabin",
             "Ticket"
